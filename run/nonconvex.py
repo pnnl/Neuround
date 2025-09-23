@@ -28,21 +28,35 @@ def exact(loader_test, config):
     num_ineq = config.size
     # init model
     from src.problem import msNonconvex
-    model = msNonconvex(num_var, num_ineq, timelimit=1000)
+    if config.warmstart:
+        model = msNonconvex(num_var, num_ineq, timelimit=10800)
+        test_size = 10
+    else:
+        model = msNonconvex(num_var, num_ineq, timelimit=1000)
+        test_size = 100
     # init df
     params, sols, objvals, mean_viols, max_viols, num_viols, elapseds = [], [], [], [], [], [], []
+    logfile_suff = f"logs/nc_ex_{num_var}-{num_ineq}"
+    infos_list = []
     # go through test data
-    b_test = loader_test.dataset.datadict["b"][:100]
-    d_test = loader_test.dataset.datadict["d"][:100]
-    for b, d in tqdm(list(zip(b_test, d_test))):
+    b_test = loader_test.dataset.datadict["b"][:test_size]
+    d_test = loader_test.dataset.datadict["d"][:test_size]
+    for idx, (b, d) in tqdm(enumerate(list(zip(b_test, d_test)))):
+        # log file path
+        logfile = logfile_suff + f"_{idx}"
         # set params
         model.set_param_val({"b":b.cpu().numpy(), "d":d.cpu().numpy()})
         # solve
         tick = time.time()
         params.append(list(b.cpu().numpy())+list(d.cpu().numpy()))
         try:
-            xval, objval = model.solve()
+            if config.warmstart:
+                xval, objval = model.solve(logfile=logfile+".log")
+            else:
+                xval, objval = model.solve()
             tock = time.time()
+            # record info
+            infos_list.append(model.last_solve_info)
             # eval
             sols.append(list(list(xval.values())[0].values()))
             objvals.append(objval)
@@ -59,6 +73,10 @@ def exact(loader_test, config):
             num_viols.append(None)
             tock = time.time()
         elapseds.append(tock - tick)
+    # save infos
+    if config.warmstart:
+        pd.DataFrame(infos_list).to_csv(logfile_suff+".csv", index=False)
+    # save summary
     df = pd.DataFrame({"Param": params,
                        "Sol": sols,
                        "Obj Val": objvals,
@@ -70,7 +88,10 @@ def exact(loader_test, config):
     print(df.describe())
     print("Number of infeasible solutions: {}".format(np.sum(df["Num Violations"] > 0)))
     print("Number of unsolved instances: ", df["Sol"].isna().sum())
-    df.to_csv(f"result/nc_exact_{num_var}-{num_ineq}_new.csv")
+    if config.warmstart:
+        df.to_csv(f"result/cq_exact_{num_var}-{num_ineq}_new_3h.csv")
+    else:
+        df.to_csv(f"result/nc_exact_{num_var}-{num_ineq}_new.csv")
 
 
 def relRnd(loader_test, config):
@@ -233,8 +254,15 @@ def rndCls(loader_train, loader_test, loader_val, config, penalty_growth=False):
     # train
     utils.train(components, loss_fn, loader_train, loader_val, lr, penalty_growth)
     # eval
-    df = evaluate(components, loss_fn, model, loader_test, project)
-    if penalty_growth:
+    if config.warmstart:
+        logfile_suff = f"logs/nc_cls{penalty_weight}_{num_var}-{num_ineq}"
+        df = evaluate_warmstart(components, loss_fn, model, loader_test, project, logfile_suff)
+    else:
+        df = evaluate(components, loss_fn, model, loader_test, project)
+    # save
+    if config.warmstart:
+        df.to_csv(f"result/nc_cls{penalty_weight}_{num_var}-{num_ineq}-ws.csv")
+    elif penalty_growth:
         df.to_csv(f"result/nc_cls{penalty_weight}_{num_var}-{num_ineq}-g_new.csv")
     elif config.project:
         df.to_csv(f"result/nc_cls{penalty_weight}_{num_var}-{num_ineq}-p_new.csv")
@@ -283,8 +311,15 @@ def rndThd(loader_train, loader_test, loader_val, config, penalty_growth=False):
     # train
     utils.train(components, loss_fn, loader_train, loader_val, lr, penalty_growth)
     # eval
-    df = evaluate(components, loss_fn, model, loader_test, project)
-    if penalty_growth:
+    if config.warmstart:
+        logfile_suff = f"logs/nc_thd{penalty_weight}_{num_var}-{num_ineq}"
+        df = evaluate_warmstart(components, loss_fn, model, loader_test, project, logfile_suff)
+    else:
+        df = evaluate(components, loss_fn, model, loader_test, project)
+    # save
+    if config.warmstart:
+        df.to_csv(f"result/nc_thd{penalty_weight}_{num_var}-{num_ineq}-ws.csv")
+    elif penalty_growth:
         df.to_csv(f"result/nc_thd{penalty_weight}_{num_var}-{num_ineq}-g_new.csv")
     elif config.project:
         df.to_csv(f"result/nc_thd{penalty_weight}_{num_var}-{num_ineq}-p_new.csv")
@@ -458,6 +493,74 @@ def evaluate(components, loss_fn, model, loader_test, project):
         max_viols.append(np.max(viol))
         num_viols.append(np.sum(viol > 1e-6))
         elapseds.append(tock - tick)
+    df = pd.DataFrame({"Param": params,
+                       "Sol": sols,
+                       "Obj Val": objvals,
+                       "Mean Violation": mean_viols,
+                       "Max Violation": max_viols,
+                       "Num Violations": num_viols,
+                       "Elapsed Time": elapseds})
+    time.sleep(1)
+    print(df.describe())
+    print("Number of infeasible solutions: {}".format(np.sum(df["Num Violations"] > 0)))
+    return df
+
+
+def evaluate_warmstart(components, loss_fn, model, loader_test, project, logfile_suff):
+    # clone model
+    model = model.clone()
+    # set 3 hours time limit
+    timelimit = 10800
+    model.opt.options["limits/time"] = timelimit
+    # postprocessing
+    if project:
+        from src.postprocess.project import gradientProjection
+        # project
+        proj = gradientProjection([components[0]], [components[1]], loss_fn, "x")
+    # eval mode
+    components.eval()
+    # init res
+    params, sols, objvals, mean_viols, max_viols, num_viols, elapseds = [], [], [], [], [], [], []
+    b_test = loader_test.dataset.datadict["b"][:10]
+    d_test = loader_test.dataset.datadict["d"][:10]
+    infos_list = []
+    for idx, (b, d) in tqdm(enumerate(list(zip(b_test, d_test)))):
+        # log file path
+        logfile = logfile_suff + f"_{idx}"
+        # data point as tensor
+        datapoints = {"b": torch.unsqueeze(b, 0).to("cuda"),
+                      "d": torch.unsqueeze(d, 0).to("cuda"),
+                      "name": "test"}
+        # infer
+        tick = time.time()
+        with torch.no_grad():
+            for comp in components:
+                datapoints.update(comp(datapoints))
+        if project:
+            proj(datapoints)
+        # assign params
+        model.set_param_val({"b":b.cpu().numpy(), "d":d.cpu().numpy()})
+        # get init solutions
+        x_rnd = datapoints["x_rnd"][0].detach().cpu().numpy()
+        init_sol = {"x": {i:v for i, v in enumerate(x_rnd)}}
+        model.set_warm_start(init_sol)
+        # solve
+        xval, objval = model.solve(logfile=logfile+".log")
+        tock = time.time()
+        # record info
+        infos_list.append(model.last_solve_info)
+        # get solution
+        params.append(list(b)+list(d))
+        sols.append(list(list(xval.values())[0].values()))
+        objvals.append(objval)
+        viol = model.cal_violation()
+        mean_viols.append(np.mean(viol))
+        max_viols.append(np.max(viol))
+        num_viols.append(np.sum(viol > 1e-6))
+        elapseds.append(tock - tick)
+    # save infos
+    pd.DataFrame(infos_list).to_csv(logfile_suff+".csv", index=False)
+    # # get summary
     df = pd.DataFrame({"Param": params,
                        "Sol": sols,
                        "Obj Val": objvals,
