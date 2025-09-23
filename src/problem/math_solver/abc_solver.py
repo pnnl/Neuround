@@ -125,7 +125,7 @@ class abcParamSolver(ABC):
         # regular expression
         re_nodes = re.compile(r"Solving\s+Nodes\s*:\s*([\d,]+)", re.IGNORECASE)
         re_ws_candidate = re.compile(r"feasible solution given by solution candidate storage", re.IGNORECASE)
-        re_pb = re.compile(r"Primal Bound\s*:\s*([+\-Ee0-9\.]+)", re.IGNORECASEre.IGNORECASE)
+        re_pb = re.compile(r"Primal Bound\s*:\s*([+\-Ee0-9\.]+)", re.IGNORECASE)
         re_db = re.compile(r"Dual Bound\s*:\s*([+\-Ee0-9\.]+)", re.IGNORECASE)
         re_gap = re.compile(r"Gap\s*:\s*([0-9\.]+)\s*%", re.IGNORECASE)
         # succeed to read
