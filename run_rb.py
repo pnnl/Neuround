@@ -79,6 +79,7 @@ import run
 print("Rosenbrock")
 if config.project is True and config.warmstart is True:
     print("Warm Starting:")
+    run.rosenbrock.exact(loader_test, config)
     run.rosenbrock.rndCls(loader_train, loader_test, loader_val, config)
     run.rosenbrock.rndThd(loader_train, loader_test, loader_val, config)
 elif config.project is True:

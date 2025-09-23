@@ -30,11 +30,14 @@ parser.add_argument("--size",
                     help="problem size")
 parser.add_argument("--penalty",
                     type=float,
-                    default=100,
+                    default=20,
                     help="penalty weight")
 parser.add_argument("--project",
                     action="store_true",
                     help="project gradient")
+parser.add_argument("--warmstart",
+                    action="store_true",
+                    help="warm start")
 config = parser.parse_args()
 
 # init problem
@@ -70,10 +73,22 @@ loader_val   = DataLoader(data_val, config.batch_size, num_workers=0,
 
 import run
 print("Integer Quadratic")
-run.quadratic.exact(loader_test, config)
-run.quadratic.relRnd(loader_test, config)
-run.quadratic.root(loader_test, config)
-run.quadratic.rndCls(loader_train, loader_test, loader_val, config)
-run.quadratic.rndThd(loader_train, loader_test, loader_val, config)
-run.quadratic.lrnRnd(loader_train, loader_test, loader_val, config)
-run.quadratic.rndSte(loader_train, loader_test, loader_val, config)
+if config.project is True and config.warmstart is True:
+    print("Warm Starting:")
+    run.quadratic.exact(loader_test, config)
+    run.quadratic.rndCls(loader_train, loader_test, loader_val, config)
+    run.quadratic.rndThd(loader_train, loader_test, loader_val, config)
+elif config.project is True:
+    print("Feasibility projection:")
+    run.quadratic.rndCls(loader_train, loader_test, loader_val, config)
+    run.quadratic.rndThd(loader_train, loader_test, loader_val, config)
+    run.quadratic.lrnRnd(loader_train, loader_test, loader_val, config)
+    run.quadratic.rndSte(loader_train, loader_test, loader_val, config)
+else:
+    run.quadratic.exact(loader_test, config)
+    run.quadratic.relRnd(loader_test, config)
+    run.quadratic.root(loader_test, config)
+    run.quadratic.rndCls(loader_train, loader_test, loader_val, config)
+    run.quadratic.rndThd(loader_train, loader_test, loader_val, config)
+    run.quadratic.lrnRnd(loader_train, loader_test, loader_val, config)
+    run.quadratic.rndSte(loader_train, loader_test, loader_val, config)

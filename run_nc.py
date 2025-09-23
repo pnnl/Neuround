@@ -35,6 +35,9 @@ parser.add_argument("--penalty",
 parser.add_argument("--project",
                     action="store_true",
                     help="project gradient")
+parser.add_argument("--warmstart",
+                    action="store_true",
+                    help="warm start")
 config = parser.parse_args()
 
 # init problem
@@ -71,10 +74,22 @@ loader_val   = DataLoader(data_val, config.batch_size, num_workers=0,
 
 import run
 print("Simple Non-Convex")
-run.nonconvex.exact(loader_test, config)
-run.nonconvex.relRnd(loader_test, config)
-run.nonconvex.root(loader_test, config)
-run.nonconvex.rndCls(loader_train, loader_test, loader_val, config)
-run.nonconvex.rndThd(loader_train, loader_test, loader_val, config)
-run.nonconvex.lrnRnd(loader_train, loader_test, loader_val, config)
-run.nonconvex.rndSte(loader_train, loader_test, loader_val, config)
+if config.project is True and config.warmstart is True:
+    print("Warm Starting:")
+    run.nonconvex.exact(loader_test, config)
+    run.nonconvex.rndCls(loader_train, loader_test, loader_val, config)
+    run.nonconvex.rndThd(loader_train, loader_test, loader_val, config)
+elif config.project is True:
+    print("Feasibility projection:")
+    run.nonconvex.rndCls(loader_train, loader_test, loader_val, config)
+    run.nonconvex.rndThd(loader_train, loader_test, loader_val, config)
+    run.nonconvex.lrnRnd(loader_train, loader_test, loader_val, config)
+    run.nonconvex.rndSte(loader_train, loader_test, loader_val, config)
+else:
+    run.nonconvex.exact(loader_test, config)
+    run.nonconvex.relRnd(loader_test, config)
+    run.nonconvex.root(loader_test, config)
+    run.nonconvex.rndCls(loader_train, loader_test, loader_val, config)
+    run.nonconvex.rndThd(loader_train, loader_test, loader_val, config)
+    run.nonconvex.lrnRnd(loader_train, loader_test, loader_val, config)
+    run.nonconvex.rndSte(loader_train, loader_test, loader_val, config)
