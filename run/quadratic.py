@@ -36,7 +36,7 @@ def exact(loader_test, config):
         test_size = 100
     # init df
     params, sols, objvals, mean_viols, max_viols, num_viols, elapseds = [], [], [], [], [], [], []
-    logfile_suff = f"logs/cq_ex_{num_var}-{num_ineq}"
+    logfile_suff = f"solver_logs/cq_ex_{num_var}-{num_ineq}"
     infos_list = []
     # go through test data
     for idx, b in tqdm(enumerate(loader_test.dataset.datadict["b"][:test_size])):
@@ -249,7 +249,7 @@ def rndCls(loader_train, loader_test, loader_val, config, penalty_growth=False):
     utils.train(components, loss_fn, loader_train, loader_val, lr, penalty_growth)
     # eval
     if config.warmstart:
-        logfile_suff = f"logs/cq_cls{penalty_weight}_{num_var}-{num_ineq}"
+        logfile_suff = f"solver_logs/cq_cls{penalty_weight}_{num_var}-{num_ineq}"
         df = evaluate_warmstart(components, loss_fn, model, loader_test, project, logfile_suff)
     else:
         df = evaluate(components, loss_fn, model, loader_test, project)
@@ -314,7 +314,7 @@ def rndThd(loader_train, loader_test, loader_val, config, penalty_growth=False):
     utils.train(components, loss_fn, loader_train, loader_val, lr, penalty_growth)
     # eval
     if config.warmstart:
-        logfile_suff = f"logs/cq_thd{penalty_weight}_{num_var}-{num_ineq}"
+        logfile_suff = f"solver_logs/cq_thd{penalty_weight}_{num_var}-{num_ineq}"
         df = evaluate_warmstart(components, loss_fn, model, loader_test, project, logfile_suff)
     else:
         df = evaluate(components, loss_fn, model, loader_test, project)
