@@ -550,7 +550,7 @@ def evaluate_warmstart(components, loss_fn, model, loader_test, project, logfile
         # record info
         infos_list.append(model.last_solve_info)
         # get solution
-        params.append(list(b)+list(d))
+        params.append(list(b.cpu().numpy())+list(d.cpu().numpy()))
         sols.append(list(list(xval.values())[0].values()))
         objvals.append(objval)
         viol = model.cal_violation()
