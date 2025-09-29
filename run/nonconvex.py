@@ -89,7 +89,7 @@ def exact(loader_test, config):
     print("Number of infeasible solutions: {}".format(np.sum(df["Num Violations"] > 0)))
     print("Number of unsolved instances: ", df["Sol"].isna().sum())
     if config.warmstart:
-        df.to_csv(f"result/cq_exact_{num_var}-{num_ineq}_new_3h.csv")
+        df.to_csv(f"result/nc_exact_{num_var}-{num_ineq}_new_3h.csv")
     else:
         df.to_csv(f"result/nc_exact_{num_var}-{num_ineq}_new.csv")
 
