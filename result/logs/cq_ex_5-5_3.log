@@ -1,0 +1,47 @@
+Solver command line: ['/cvmfs/restricted.computecanada.ca/easybuild/software/2023/x86-64-v3/Core/gurobi/11.0.1/bin/gurobi.sh']
+
+Set parameter TokenServer to value "license1.computecanada.ca"
+Read LP format model from file /tmp/tmp3ea4acm0.pyomo.lp
+Reading time = 0.00 seconds
+x1: 5 rows, 5 columns, 25 nonzeros
+Set parameter TimeLimit to value 10800
+Gurobi Optimizer version 11.0.1 build v11.0.1rc0 (linux64 - "AlmaLinux 9.6 (Sage Margay)")
+
+CPU model: AMD EPYC 9655 96-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 192 physical cores, 192 logical processors, using up to 32 threads
+
+Optimize a model with 5 rows, 5 columns and 25 nonzeros
+Model fingerprint: 0x61bab005
+Model has 5 quadratic objective terms
+Variable types: 0 continuous, 5 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e-02, 2e-01]
+  Objective range  [4e-03, 7e-02]
+  QObjective range [7e-04, 8e-03]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [2e-02, 1e+00]
+Presolve time: 0.00s
+Presolved: 5 rows, 5 columns, 25 nonzeros
+Presolved model has 5 quadratic objective terms
+Variable types: 0 continuous, 5 integer (0 binary)
+Found heuristic solution: objective 0.0192356
+
+Root relaxation: objective -3.879512e-01, 5 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0   -0.38795    0    5    0.01924   -0.38795  2117%     -    0s
+H    0     0                      -0.3051816   -0.38795  27.1%     -    0s
+H    0     0                      -0.3276942   -0.38795  18.4%     -    0s
+     0     0   -0.38114    0    5   -0.32769   -0.38114  16.3%     -    0s
+     0     2   -0.38114    0    5   -0.32769   -0.38114  16.3%     -    0s
+
+Explored 26 nodes (86 simplex iterations) in 0.12 seconds (0.00 work units)
+Thread count was 32 (of 192 available processors)
+
+Solution count 3: -0.327694 -0.305182 0.0192356 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective -3.276941977655e-01, best bound -3.276941977655e-01, gap 0.0000%
+

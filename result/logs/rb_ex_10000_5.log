@@ -1,0 +1,58 @@
+Solver command line: ['/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcc12/scipoptsuite/9.0.0/bin/scip', '/tmp/tmptqwr55vs.pyomo', '-AMPL']
+
+SCIP version 9.0.0 [precision: 8 byte] [memory: block] [mode: optimized] [LP solver: Soplex 7.0.0] [GitHash: 7205bedd94]
+Copyright (c) 2002-2024 Zuse Institute Berlin (ZIB)
+
+External libraries: 
+  Readline 8.1         GNU library for command line editing (gnu.org/s/readline)
+  Soplex 7.0.0         Linear Programming Solver developed at Zuse Institute Berlin (soplex.zib.de) [GitHash: 6657fb3b]
+  CppAD 20180000.0     Algorithmic Differentiation of C++ algorithms developed by B. Bell (github.com/coin-or/CppAD)
+  ZLIB 1.2.13          General purpose compression library by J. Gailly and M. Adler (zlib.net)
+  GMP 6.2.1            GNU Multiple Precision Arithmetic Library developed by T. Granlund (gmplib.org)
+  ZIMPL 3.5.3          Zuse Institute Mathematical Programming Language developed by T. Koch (zimpl.zib.de)
+  AMPL/MP 690e9e7      AMPL .nl file reader library (github.com/ampl/mp)
+  PaPILO 2.2.0         parallel presolve for integer and linear optimization (github.com/scipopt/papilo) (built with TBB) [GitHash: df30ae49]
+  bliss 0.77           Computing Graph Automorphisms by T. Junttila and P. Kaski (users.aalto.fi/~tjunttil/bliss)
+  sassy 1.1            Symmetry preprocessor by Markus Anders (github.com/markusa4/sassy)
+  Ipopt 3.14.14        Interior Point Optimizer developed by A. Waechter et.al. (github.com/coin-or/Ipopt)
+
+reading user parameter file <scip.set>
+===========================
+
+limits/time = 10800
+
+read problem </tmp/tmptqwr55vs.pyomo.nl>
+============
+
+original problem has 20001 variables (0 bin, 10000 int, 0 impl, 10001 cont) and 5 constraints
+
+solve problem
+=============
+
+presolving:
+(round 1, fast)       0 del vars, 0 del conss, 0 add conss, 20001 chg bounds, 1 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 0 clqs
+   (1.9s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (2.9s) no symmetry present (symcode time: 0.02)
+presolving (2 rounds: 2 fast, 1 medium, 1 exhaustive):
+ 0 deleted vars, 0 deleted constraints, 0 added constraints, 20001 tightened bounds, 0 added holes, 1 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+presolved problem has 20001 variables (0 bin, 10000 int, 0 impl, 10001 cont) and 5 constraints
+      3 constraints of type <linear>
+      2 constraints of type <nonlinear>
+Presolving Time: 2.82
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  574s|     1 |     0 | 20000 |     - |   442M |   0 |  60k|   5 |  60k|   0 |  0 |   0 |   0 |-6.287337e+14 |      --      |    Inf | unknown
+(node 1) unresolved numerical troubles in LP 4 -- using pseudo solution instead (loop 1)
+  586s|     1 |     2 | 32037 |     - |   452M |   0 |  60k|   5 |  62k|2000 |  1 |   0 |   0 |-6.287337e+14 |      --      |    Inf | unknown
+WARNING: LP solution value is below SCIP's -infinity value
+ 2277s|   100 |    99 |346763 |3280.1 |   718M |  17 |  60k|   7 |  81k|  41k|  2 |   2 |   0 |-6.287337e+14 |      --      |    Inf | unknown
+Starting spatial branch-and-bound on unbounded variable <t_nlobjvar> ([-3.7724e+14,1e+20]) - cannot guarantee finite termination.
+
+SCIP Status        : solving was interrupted [time limit reached]
+Solving Time (sec) : 10800.00
+Solving Nodes      : 133
+Primal Bound       : +1.00000000000000e+20 (0 solutions)
+Dual Bound         : -6.28733703443123e+14
+Gap                : infinite
+
