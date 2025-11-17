@@ -44,6 +44,8 @@ config = parser.parse_args()
 
 # warmstart
 config.warmstart = True
+# project
+config.project = True
 
 # init problem
 num_var = config.size            # number of variables

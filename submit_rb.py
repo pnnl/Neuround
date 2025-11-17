@@ -44,6 +44,8 @@ config = parser.parse_args()
 
 # warmstart
 config.warmstart = True
+# project
+config.project = True
 
 # init problem
 config.steepness = 50            # steepness factor
