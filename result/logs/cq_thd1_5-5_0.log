@@ -1,0 +1,55 @@
+Solver command line: ['/cvmfs/restricted.computecanada.ca/easybuild/software/2023/x86-64-v3/Core/gurobi/11.0.1/bin/gurobi.sh']
+
+Set parameter TokenServer to value "license1.computecanada.ca"
+Read LP format model from file /tmp/tmpb_1klgwl.pyomo.lp
+Reading time = 0.00 seconds
+x1: 5 rows, 5 columns, 25 nonzeros
+Read MIP start from file /tmp/tmpaeid25zp.gurobi.mst
+Set parameter TimeLimit to value 10800
+Gurobi Optimizer version 11.0.1 build v11.0.1rc0 (linux64 - "AlmaLinux 9.6 (Sage Margay)")
+
+CPU model: AMD EPYC 9454 48-Core Processor, instruction set [SSE2|AVX|AVX2|AVX512]
+Thread count: 48 physical cores, 48 logical processors, using up to 32 threads
+
+Optimize a model with 5 rows, 5 columns and 25 nonzeros
+Model fingerprint: 0xfd9296db
+Model has 5 quadratic objective terms
+Variable types: 0 continuous, 5 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e-02, 2e-01]
+  Objective range  [4e-03, 7e-02]
+  QObjective range [7e-04, 8e-03]
+  Bounds range     [0e+00, 0e+00]
+  RHS range        [1e-01, 7e-01]
+
+User MIP start did not produce a new incumbent solution
+User MIP start violates constraint c_u_x8_ by 0.068720605
+
+Presolve time: 0.00s
+Presolved: 5 rows, 5 columns, 25 nonzeros
+Presolved model has 5 quadratic objective terms
+Variable types: 0 continuous, 5 integer (0 binary)
+Found heuristic solution: objective -0.1421885
+
+Root relaxation: objective -4.185371e-01, 5 iterations, 0.00 seconds (0.00 work units)
+Another try with MIP start
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0   -0.41854    0    5   -0.14219   -0.41854   194%     -    0s
+H    0     0                      -0.2173361   -0.41854  92.6%     -    0s
+H    0     0                      -0.2591383   -0.41854  61.5%     -    0s
+H    0     0                      -0.2687323   -0.41854  55.7%     -    0s
+     0     0   -0.40573    0    5   -0.26873   -0.40573  51.0%     -    0s
+H    0     0                      -0.2958904   -0.40573  37.1%     -    0s
+     0     2   -0.40573    0    5   -0.29589   -0.40573  37.1%     -    0s
+
+Explored 49 nodes (156 simplex iterations) in 0.11 seconds (0.00 work units)
+Thread count was 32 (of 48 available processors)
+
+Solution count 5: -0.29589 -0.268732 -0.259138 ... -0.142188
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective -2.958904130886e-01, best bound -2.958904130886e-01, gap 0.0000%
+

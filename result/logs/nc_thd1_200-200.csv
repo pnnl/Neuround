@@ -1,0 +1,11 @@
+solver,solve_time_sec,status,termination,obj_value,incumbent,best_bound,mip_gap,warmstart_requested,lp_iters,nodes_count,warmstart_used,logfile
+scip,10801.170954227448,ok,maxTimeLimit,-3.9231978265410463,1e+20,-10.1596191640159,,True,994491,282812,False,solver_logs/nc_thd1_200-200_0.log
+scip,10801.270833492279,ok,maxTimeLimit,-3.773146315653326,1e+20,-10.1873401583372,,True,969721,272878,False,solver_logs/nc_thd1_200-200_1.log
+scip,10801.327217578888,ok,maxTimeLimit,-3.72773483129922,1e+20,-10.2248214749084,,True,968427,267387,False,solver_logs/nc_thd1_200-200_2.log
+scip,10801.351517915726,ok,maxTimeLimit,-3.9348178326038608,1e+20,-10.1885996940105,,True,972758,278546,False,solver_logs/nc_thd1_200-200_3.log
+scip,10801.269076108932,ok,maxTimeLimit,-3.604906194852363,0.0,-10.1986853111449,,True,954795,284096,True,solver_logs/nc_thd1_200-200_4.log
+scip,10801.157302856445,ok,maxTimeLimit,-3.9369079734048986,1e+20,-10.1868481984957,,True,954703,262986,False,solver_logs/nc_thd1_200-200_5.log
+scip,10801.295423746109,ok,maxTimeLimit,-3.7426755674388748,1e+20,-10.2462224920089,,True,995180,277096,False,solver_logs/nc_thd1_200-200_6.log
+scip,10801.069010972977,ok,maxTimeLimit,-3.8287988090460856,1e+20,-10.2104208911637,,True,990036,264526,False,solver_logs/nc_thd1_200-200_7.log
+scip,10801.166286230087,ok,maxTimeLimit,-3.791393177458513,1e+20,-10.2241485764848,,True,993381,274812,False,solver_logs/nc_thd1_200-200_8.log
+scip,10801.228913784027,ok,maxTimeLimit,-3.730338079743788,1e+20,-10.238899168598,,True,948386,256504,False,solver_logs/nc_thd1_200-200_9.log
