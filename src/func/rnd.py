@@ -255,7 +255,7 @@ if __name__ == "__main__":
     p_samples = torch.FloatTensor(num_data, 2).uniform_(p_low, p_high)
     data = {"p":p_samples}
     # data split
-    from src.utlis import data_split
+    from src.utils import data_split
     data_train, data_test, data_dev = data_split(data, test_size=test_size, val_size=val_size)
     # torch dataloaders
     from torch.utils.data import DataLoader
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     datapoint = {"p": torch.tensor([[*p]], dtype=torch.float32),
                  "name":"test"}
     model.set_param_val({"p":p})
-    from src.utlis import nm_test_solve, ms_test_solve
+    from src.utils import nm_test_solve, ms_test_solve
     print("SCIP:")
     ms_test_solve(model)
     print("neuroMANCER:")

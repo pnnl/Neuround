@@ -99,7 +99,7 @@ if __name__ == "__main__":
     a_samples = torch.FloatTensor(num_data, num_blocks).uniform_(a_low, a_high)
     data = {"p":p_samples, "a":a_samples}
     # data split
-    from src.utlis import data_split
+    from src.utils import data_split
     data_train, data_test, data_dev = data_split(data, test_size=test_size, val_size=val_size)
     # torch dataloaders
     from torch.utils.data import DataLoader
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     model = rosenbrock(steepness=steepness, num_blocks=num_blocks)
 
     # test neuroMANCER
-    from src.utlis import nm_test_solve
+    from src.utils import nm_test_solve
     p, a = data_train[0]["p"].tolist(), data_train[0]["a"].tolist()
     datapoint = {"p": torch.tensor([p], dtype=torch.float32),
                  "a": torch.tensor([a], dtype=torch.float32),

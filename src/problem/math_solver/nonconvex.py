@@ -41,7 +41,7 @@ class nonconvex(abcParamSolver):
 
 if __name__ == "__main__":
 
-    from src.utlis import ms_test_solve
+    from src.utils import ms_test_solve
 
     num_var = 10
     num_ineq = 10

@@ -92,7 +92,7 @@ if __name__ == "__main__":
     d_samples = torch.from_numpy(np.random.uniform(-0.01, 0.01, size=(num_data, num_ineq))).float()
     data = {"b":b_samples, "d":d_samples}
     # data split
-    from src.utlis import data_split
+    from src.utils import data_split
     data_train, data_test, data_dev = data_split(data, test_size=test_size, val_size=val_size)
     # torch dataloaders
     from torch.utils.data import DataLoader
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     model = nonconvex(num_var, num_ineq)
 
     # test neuroMANCER
-    from src.utlis import nm_test_solve
+    from src.utils import nm_test_solve
     print("neuroMANCER:")
     datapoint = {"b": b_samples[:1],
                  "d": d_samples[:1],
