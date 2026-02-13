@@ -113,8 +113,8 @@ class abcParamSolver(ABC):
                 solvals[key] = {i:vars[i].value for i in vars}
             # get the objective value
             objval = pe.value(self.model.obj)
-        except:
-            # no value
+        except (ValueError, AttributeError, TypeError):
+            # no value or invalid state
             solvals, objval = None, None
         return solvals, objval
 
@@ -257,7 +257,7 @@ class abcParamSolver(ABC):
             model_heur.opt.options["limits/nodes"] = 1
             # disable presolve
             model_heur.opt.options["presolving/maxrounds"] = 0
-            # disable seperation
+            # disable separation
             model_heur.opt.options["separating/maxrounds"] = 0
             # emphasize heuristic usage
             model_heur.opt.options["heuristics/emphasis"] = 3

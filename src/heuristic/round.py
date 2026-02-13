@@ -11,7 +11,7 @@ def naive_round(xval_rel, model):
             # round integer variables
             if model.vars[k][i].is_integer():
                 model.vars[k][i].value = round(vals[i])
-            # assign cotinuous variables
+            # assign continuous variables
             else:
                 model.vars[k][i].value = vals[i]
     xval, objval = model.get_val()
@@ -28,7 +28,7 @@ def floor_round(xval_rel, model):
             # round integer variables
             if model.vars[k][i].is_integer():
                 model.vars[k][i].value = math.floor(vals[i])
-            # assign cotinuous variables
+            # assign continuous variables
             else:
                 model.vars[k][i].value = vals[i]
     xval, objval = model.get_val()

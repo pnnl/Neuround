@@ -302,7 +302,7 @@ if __name__ == "__main__":
     my_trainer.train(loader_train, loader_dev, epochs)
     print()
 
-    # init mathmatic model
+    # init mathematical model
     from src.problem.math_solver.quadratic import quadratic
     model = quadratic()
 

@@ -1,5 +1,5 @@
 """
-Parametric Mixed Integer Simple Conconvex Programming
+Parametric Mixed Integer Simple Nonconvex Programming
 
 https://arxiv.org/abs/2104.12225
 """

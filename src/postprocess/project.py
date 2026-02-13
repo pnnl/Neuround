@@ -65,7 +65,7 @@ if __name__ == "__main__":
     val_size = 1000
     train_size = num_data - test_size - val_size
 
-    # init mathmatic model
+    # init mathematical model
     from src.problem import msQuadratic
     model = msQuadratic(num_var, num_ineq, timelimit=60)
 

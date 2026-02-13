@@ -204,7 +204,7 @@ if __name__ == "__main__":
     problem.load_state_dict(best_model)
     print()
 
-    # init mathmatic model
+    # init mathematical model
     from src.problem.math_solver.quadratic import quadratic
     model = quadratic()
 

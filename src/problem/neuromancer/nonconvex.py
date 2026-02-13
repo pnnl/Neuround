@@ -126,7 +126,7 @@ if __name__ == "__main__":
     my_trainer.train(loader_train, loader_dev)
     print()
 
-    # init mathmatic model
+    # init mathematical model
     from src.problem.math_solver.nonconvex import nonconvex
     model = nonconvex(num_var, num_ineq)
 
