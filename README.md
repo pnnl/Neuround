@@ -267,23 +267,14 @@ solver.train(
 
 ### Step 7: Predict
 
-Given a new parameter value $b$, the trained solver predicts an integer solution via a single forward pass (plus projection if configured).
+Given new parameter values $b$, the trained solver predicts integer solutions via a forward pass (plus projection if configured). The input can be a batch of instances.
 
 ```python
-# Single-instance prediction (with projection if configured)
-b_test = torch.unsqueeze(data_test.datadict["b"][0], 0).to("cuda")
+b_test = data_test.datadict["b"].to("cuda")
 result = solver.predict({"b": b_test, "name": "test"})
 
 print(result["x"])       # integer solution
 print(result["x_rel"])   # continuous relaxation
-
-# Without projection (manual forward pass)
-solver.problem.eval()
-with torch.no_grad():
-    data = {"b": b_test, "name": "test"}
-    data.update(solver.smap_node(data))       # b -> x_rel
-    data.update(solver.rounding_node(data))   # x_rel -> x
-print(data["x"])
 ```
 
 ## API Reference
