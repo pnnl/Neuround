@@ -36,7 +36,7 @@ class AdaptiveSelectionRounding(RoundingNode):
         # Extend input keys to include parameter keys
         self.input_keys = list(param_keys) + self.input_keys
 
-        # Network: [params, vars] -> per-variable adjustment
+        # Network: [params, vars] -> per-variable selection
         self.net = net
 
         # Differentiable floor via STE
