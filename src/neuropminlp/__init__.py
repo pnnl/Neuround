@@ -14,6 +14,7 @@ from neuromancer.problem import Problem
 # ---- neuropminlp modules ----
 from neuropminlp.blocks import MLPBnDrop
 from neuropminlp.variable import VarType, variable
+from neuropminlp.projection import GradientProjection
 
 __all__ = [
     # neuromancer re-exports
@@ -22,4 +23,5 @@ __all__ = [
     # neuropminlp modules
     "MLPBnDrop",
     "VarType", "variable",
+    "GradientProjection",
 ]
