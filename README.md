@@ -1,8 +1,6 @@
-# NeuRound
+# NeuRound: A Learning-to-Optimize (L2O) framework for Mixed-Integer Nonlinear Programming (MINLP)
 
 ![Framework](img/pipeline.png)
-
-A Learning-to-Optimize (L2O) framework for Mixed-Integer Nonlinear Programming (MINLP), built on top of [NeuroMANCER](https://pnnl.github.io/neuromancer).
 
 Based on the paper: **"[Learning to Optimize for Mixed-Integer Nonlinear Programming with Feasibility Guarantees](https://arxiv.org/abs/2410.11061)"**
 
