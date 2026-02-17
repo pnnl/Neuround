@@ -23,7 +23,7 @@ class GradientProjection:
     """
 
     def __init__(self, rounding_components, constraints, target_key,
-                 num_steps=1000, step_size=0.01, decay=1.0,
+                 num_steps=1000, step_size=0.01, decay=0.1,
                  tolerance=1e-6):
         self.rounding_components = rounding_components
         self.constraints = constraints
@@ -45,7 +45,7 @@ class GradientProjection:
             final rounded solution.
         """
         x = data[self.target_key].clone().requires_grad_(True)
-        step = self.step_size
+        d = 1.0
 
         for _ in range(self.num_steps):
             # Build temp data with current x
@@ -55,22 +55,30 @@ class GradientProjection:
             for comp in self.rounding_components:
                 temp_data.update(comp(temp_data))
 
-            # Compute total violation from nm.Constraint objects
-            total_viol = torch.zeros(x.shape[0], device=x.device)
+            # Compute constraint violation energy (mean of abs violations)
+            violations = []
             for con in self.constraints:
                 out = con(temp_data)
                 viol_key = con.output_keys[2]
                 viol = out[viol_key]
-                total_viol = total_viol + viol.reshape(x.shape[0], -1).sum(dim=1)
+                violations.append(viol.reshape(x.shape[0], -1))
+            
+            # Early stop if feasible
+            if not violations:
+                break
+
+            # Compute energy
+            violations = torch.cat(violations, dim=-1)
+            energy = torch.mean(torch.abs(violations), dim=1)
 
             # Check convergence
-            if total_viol.max().item() < self.tolerance:
+            if energy.max().item() < self.tolerance:
                 break
 
             # Gradient step on x_relaxed
-            grad = torch.autograd.grad(total_viol.sum(), x)[0]
-            x = (x - step * grad).detach().requires_grad_(True)
-            step *= self.decay
+            grad = torch.autograd.grad(energy.sum(), x)[0]
+            x = (x - d * self.step_size * grad).detach().requires_grad_(True)
+            d = d - self.decay * d
 
         # Final update
         data[self.target_key] = x.detach()
