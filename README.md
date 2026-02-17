@@ -1,4 +1,6 @@
-# Neuround
+# NeuRound
+
+![Framework](img/pipeline.png)
 
 A Learning-to-Optimize (L2O) framework for Mixed-Integer Nonlinear Programming (MINLP), built on top of [NeuroMANCER](https://pnnl.github.io/neuromancer).
 
@@ -9,8 +11,6 @@ Based on the paper: **"[Learning to Optimize for Mixed-Integer Nonlinear Program
 Neuround solves **parametric MINLP**: given a family of optimization problems that share the same structure but differ in parameter values (e.g., constraint right-hand sides), it learns a neural network that maps parameters directly to high-quality integer solutions, without invoking a traditional solver at inference time.
 
 The key components are differentiable **integer correction layers** (for rounding continuous relaxations to integers) and **gradient-based feasibility projection** (for enforcing feasibility post-hoc). Training is self-supervised: only sampled parameter values are needed, not expensive optimal solutions. The framework scales to problems with tens of thousands of variables at subsecond inference with fast training.
-
-![Framework](img/pipeline.png)
 
 ## Citation
 
