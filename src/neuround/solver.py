@@ -169,7 +169,9 @@ class LearnableSolver:
             device=device,
         )
         best_model = trainer.train()
-        self.problem.load_state_dict(best_model)
+        # Strip "_orig_mod." prefix added by torch.compile
+        clean = {k.removeprefix("_orig_mod."): v for k, v in best_model.items()}
+        self.problem.load_state_dict(clean)
 
     def predict(self, data):
         """
