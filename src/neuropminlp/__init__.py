@@ -13,6 +13,7 @@ from neuromancer.problem import Problem
 
 # ---- neuropminlp modules ----
 from neuropminlp.blocks import MLPBnDrop
+from neuropminlp.variable import VarType, variable
 
 __all__ = [
     # neuromancer re-exports
@@ -20,4 +21,5 @@ __all__ = [
     "Objective", "Constraint", "PenaltyLoss", "Problem",
     # neuropminlp modules
     "MLPBnDrop",
+    "VarType", "variable",
 ]
