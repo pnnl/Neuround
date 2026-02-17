@@ -11,8 +11,13 @@ from neuromancer.constraint import Objective, Constraint
 from neuromancer.loss import PenaltyLoss
 from neuromancer.problem import Problem
 
+# ---- neuropminlp modules ----
+from neuropminlp.blocks import MLPBnDrop
+
 __all__ = [
     # neuromancer re-exports
     "MLP", "Node", "DictDataset", "Trainer",
     "Objective", "Constraint", "PenaltyLoss", "Problem",
+    # neuropminlp modules
+    "MLPBnDrop",
 ]
