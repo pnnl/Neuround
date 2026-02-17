@@ -3,10 +3,8 @@ neuround: Neuromancer extension for Mixed-Integer Nonlinear Programming.
 """
 
 # ---- Re-exports from neuromancer ----
-from neuromancer.modules.blocks import MLP
 from neuromancer.system import Node
 from neuromancer.dataset import DictDataset
-from neuromancer.trainer import Trainer
 from neuromancer.constraint import Objective, Constraint
 from neuromancer.loss import PenaltyLoss
 from neuromancer.problem import Problem
@@ -19,7 +17,7 @@ from neuround.solver import LearnableSolver
 
 __all__ = [
     # neuromancer re-exports
-    "MLP", "Node", "DictDataset", "Trainer",
+    "Node", "DictDataset", "Trainer",
     "Objective", "Constraint", "PenaltyLoss", "Problem",
     # neuround modules
     "MLPBnDrop",
@@ -27,3 +25,18 @@ __all__ = [
     "GradientProjection",
     "LearnableSolver",
 ]
+
+
+def __getattr__(name):
+    if name == "Trainer":
+        from neuromancer.trainer import Trainer as _BaseTrainer
+        from neuround.solver import fast
+
+        class Trainer(_BaseTrainer):
+            """Trainer with implicit torch.compile + AMP autocast."""
+            def __init__(self, problem, *args, device="cpu", **kwargs):
+                super().__init__(fast(problem, device), *args,
+                                 device=device, **kwargs)
+
+        return Trainer
+    raise AttributeError(f"module 'neuround' has no attribute {name!r}")

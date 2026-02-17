@@ -2,6 +2,7 @@
 Network blocks for NeuroPMINLP.
 """
 
+import torch
 import torch.nn as nn
 
 
@@ -45,5 +46,6 @@ class MLPBnDrop(nn.Module):
         self.net = nn.Sequential(*layers)
         self.out_features = outsize
 
-    def forward(self, x):
+    def forward(self, *inputs):
+        x = torch.cat(inputs, dim=-1) if len(inputs) > 1 else inputs[0]
         return self.net(x)

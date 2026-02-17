@@ -2,12 +2,48 @@
 LearnableSolver: convenience wrapper for end-to-end learnable MINLP solver.
 """
 
+import functools
+
 import torch
 
 from neuromancer.problem import Problem
-from neuromancer.trainer import Trainer
 
 from neuround.projection.gradient import GradientProjection
+
+
+def fast(problem, device="cuda"):
+    """
+    Decorate a Problem with torch.compile + AMP autocast.
+
+    Applied implicitly inside the package — users never call this
+    directly.  Works transparently with neuromancer Trainer.
+
+    Args:
+        problem: neuromancer Problem instance.
+        device: Target device (AMP is enabled only for "cuda").
+
+    Returns:
+        The (possibly compiled) problem with autocast-wrapped forward.
+    """
+    use_amp = "cuda" in str(device)
+
+    # Wrap forward with autocast first (compile will trace through it)
+    _orig_forward = problem.forward
+
+    @functools.wraps(_orig_forward)
+    def _amp_forward(*args, **kwargs):
+        with torch.amp.autocast("cuda", enabled=use_amp):
+            return _orig_forward(*args, **kwargs)
+
+    problem.forward = _amp_forward
+
+    # torch.compile for graph-level fusion (graceful fallback)
+    try:
+        problem = torch.compile(problem)
+    except Exception:
+        pass
+
+    return problem
 
 
 class LearnableSolver:
@@ -111,7 +147,7 @@ class LearnableSolver:
               epochs=200, patience=20, warmup=20,
               device="cpu"):
         """
-        Train the solver using neuromancer Trainer.
+        Train the solver with AMP autocast and optional torch.compile.
 
         Args:
             loader_train: Training DataLoader.
@@ -122,17 +158,14 @@ class LearnableSolver:
             warmup: Warmup epochs before early stopping.
             device: Training device.
         """
-        # Move problem to device
+        from neuromancer.trainer import Trainer
+
         self.problem.to(device)
-        # Train using neuromancer Trainer
+        decorated = fast(self.problem, device=device)
         trainer = Trainer(
-            self.problem,
-            loader_train,
-            loader_val,
-            optimizer=optimizer,
-            epochs=epochs,
-            patience=patience,
-            warmup=warmup,
+            decorated, loader_train, loader_val,
+            optimizer=optimizer, epochs=epochs,
+            patience=patience, warmup=warmup,
             device=device,
         )
         best_model = trainer.train()
