@@ -6,7 +6,7 @@ import pytest
 import torch
 from torch import nn
 
-from neuropminlp.rounding.functions import (
+from neuround.rounding.functions import (
     DiffFloor,
     DiffBinarize,
     DiffGumbelBinarize,
@@ -389,10 +389,10 @@ class TestThresholdBinarize:
 
 
 class TestRoundingFunctionsExport:
-    """Test that functions are exported from neuropminlp.rounding."""
+    """Test that functions are exported from neuround.rounding."""
 
     def test_import_from_rounding(self):
-        from neuropminlp.rounding import (
+        from neuround.rounding import (
             DiffFloor,
             DiffBinarize,
             DiffGumbelBinarize,

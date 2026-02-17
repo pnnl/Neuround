@@ -3,7 +3,7 @@ Rounding nodes for mixed-integer optimization.
 """
 
 # STE functions
-from neuropminlp.rounding.functions import (
+from neuround.rounding.functions import (
     DiffFloor,
     DiffBinarize,
     DiffGumbelBinarize,
@@ -12,13 +12,13 @@ from neuropminlp.rounding.functions import (
 )
 
 # Rounding nodes
-from neuropminlp.rounding.base import RoundingNode
-from neuropminlp.rounding.ste import STERounding, StochasticSTERounding
-from neuropminlp.rounding.threshold import (
+from neuround.rounding.base import RoundingNode
+from neuround.rounding.ste import STERounding, StochasticSTERounding
+from neuround.rounding.threshold import (
     DynamicThresholdRounding,
     StochasticDynamicThresholdRounding,
 )
-from neuropminlp.rounding.selection import (
+from neuround.rounding.selection import (
     AdaptiveSelectionRounding,
     StochasticAdaptiveSelectionRounding,
 )

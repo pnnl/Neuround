@@ -1,48 +1,48 @@
 """
-Adaptive selection rounding layers (deterministic and stochastic).
+Dynamic threshold rounding layers (deterministic and stochastic).
 """
 
 import torch
 
-from neuropminlp.rounding.base import RoundingNode
-from neuropminlp.rounding.functions import (
-    DiffFloor, DiffBinarize, DiffGumbelBinarize,
+from neuround.rounding.base import RoundingNode
+from neuround.rounding.functions import (
+    DiffFloor, ThresholdBinarize, GumbelThresholdBinarize,
 )
 
 
-class AdaptiveSelectionRounding(RoundingNode):
+class DynamicThresholdRounding(RoundingNode):
     """
-    Adaptive selection rounding with network-adjusted variables.
+    Dynamic threshold rounding with MLP-predicted thresholds.
 
-    Network selects rounding direction for integer/binary variables.
-    Uses deterministic STE binarization.
+    MLP predicts per-variable thresholds from concatenated
+    problem parameters and relaxed solutions.
 
     Args:
         vars: Variable or list of variables with type metadata.
         param_keys: List of parameter keys to read from data dict.
-        net: Network mapping [params, vars] to per-variable selection.
+        net: Network mapping [params, vars] to per-variable outputs.
         continuous_update: Whether to update continuous variables (default: False).
+        slope: Slope for sigmoid-smoothed binarization (default: 10).
         name: Module name.
     """
 
     def __init__(self, vars, param_keys, net,
-                 continuous_update=False, tolerance=1e-3,
-                 name="adaptive_selection_rounding"):
+                 continuous_update=False, slope=10,
+                 name="dynamic_threshold_rounding"):
         super().__init__(vars, name)
         self.param_keys = param_keys
         self.continuous_update = continuous_update
-        self.tolerance = tolerance
 
         # Extend input keys to include parameter keys
         self.input_keys = list(param_keys) + self.input_keys
 
-        # Network: [params, vars] -> per-variable selection
+        # Network: [params, vars] -> per-variable thresholds
         self.net = net
 
         # Differentiable floor via STE
         self.floor = DiffFloor()
-        # Deterministic STE binarization
-        self.binarize = DiffBinarize()
+        # Sigmoid-smoothed threshold binarization
+        self.threshold_binarize = ThresholdBinarize(slope=slope)
 
     def forward(self, data):
         # Concatenate all problem parameters
@@ -51,35 +51,39 @@ class AdaptiveSelectionRounding(RoundingNode):
         vars = torch.cat([data[v.relaxed.key] for v in self.vars], dim=-1)
         # Network input: [params, vars]
         features = torch.cat([params, vars], dim=-1)
-        hidden = self.net(features)
 
-        # Round per variable using offset tracking
+        # Predict raw outputs and map to [0, 1] thresholds
+        hidden = self.net(features)
+        thresholds = torch.sigmoid(hidden)
+
+        # Split and round per variable using offset tracking
         output = {}
         offset = 0
         for var in self.vars:
             n = var.num_vars
             x = data[var.relaxed.key].clone()
+            # Slice network output for this variable
             h_var = hidden[:, offset:offset + n]
+            thresh_var = thresholds[:, offset:offset + n]
 
             # Optionally update continuous variables via network adjustment
             if self.continuous_update and var.continuous_indices:
                 x[:, var.continuous_indices] += h_var[:, var.continuous_indices]
 
-            # Round integer variables: floor(x) + binarize(h)
+            # Round integer variables: floor(x) + threshold_binarize(frac, thresh)
             if var.integer_indices:
-                x_int = x[:, var.integer_indices]
-                # Differentiable floor
-                x_floor = self.floor(x_int)
-                # Network selects round up or down
-                binary = self.binarize(h_var[:, var.integer_indices])
-                # Mask if already integer
-                binary = self._int_mask(binary, x_int)
+                x_floor = self.floor(x[:, var.integer_indices])
+                # NOTE: legacy bug — x_floor should be detached
+                x_frac = x[:, var.integer_indices] - x_floor
+                thresh = thresh_var[:, var.integer_indices]
+                binary = self.threshold_binarize(x_frac, thresh)
                 x[:, var.integer_indices] = x_floor + binary
 
-            # Round binary variables: binarize(h)
+            # Round binary variables: threshold_binarize(x, thresh)
             if var.binary_indices:
-                x[:, var.binary_indices] = self.binarize(
-                    h_var[:, var.binary_indices]
+                thresh = thresh_var[:, var.binary_indices]
+                x[:, var.binary_indices] = self.threshold_binarize(
+                    x[:, var.binary_indices], thresh
                 )
 
             # Store rounded result
@@ -87,26 +91,18 @@ class AdaptiveSelectionRounding(RoundingNode):
             offset += n
         return output
 
-    def _int_mask(self, binary, x):
-        """Mask rounding for values already close to an integer."""
-        frac_floor = x - torch.floor(x)
-        frac_ceil = torch.ceil(x) - x
-        binary[frac_floor < self.tolerance] = 0.0
-        binary[frac_ceil < self.tolerance] = 1.0
-        return binary
 
-
-class StochasticAdaptiveSelectionRounding(AdaptiveSelectionRounding):
+class StochasticDynamicThresholdRounding(DynamicThresholdRounding):
     """
-    Stochastic adaptive selection rounding with Gumbel-Softmax noise.
+    Stochastic dynamic threshold rounding with Gumbel-Softmax noise.
 
-    Same as AdaptiveSelectionRounding but uses DiffGumbelBinarize
+    Same as DynamicThresholdRounding but uses GumbelThresholdBinarize
     for stochastic training and deterministic evaluation.
 
     Args:
         vars: Variable or list of variables with type metadata.
         param_keys: List of parameter keys to read from data dict.
-        net: Network mapping [params, vars] to per-variable selection.
+        net: Network mapping [params, vars] to per-variable outputs.
         continuous_update: Whether to update continuous variables (default: False).
         temperature: Gumbel-Softmax temperature (default: 1.0).
         name: Module name.
@@ -114,9 +110,11 @@ class StochasticAdaptiveSelectionRounding(AdaptiveSelectionRounding):
 
     def __init__(self, vars, param_keys, net,
                  continuous_update=False, temperature=1.0,
-                 name="stochastic_adaptive_selection_rounding"):
+                 name="stochastic_dynamic_threshold_rounding"):
         super().__init__(vars, param_keys, net,
                          continuous_update=continuous_update,
                          name=name)
-        # Replace deterministic STE binarization with Gumbel-Softmax version
-        self.binarize = DiffGumbelBinarize(temperature=temperature)
+        # Replace sigmoid-smoothed binarization with Gumbel-Softmax version
+        self.threshold_binarize = GumbelThresholdBinarize(
+            temperature=temperature
+        )

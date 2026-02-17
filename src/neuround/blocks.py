@@ -43,6 +43,7 @@ class MLPBnDrop(nn.Module):
         # last layer: Linear only
         layers.append(nn.Linear(sizes[-2], sizes[-1], bias=bias))
         self.net = nn.Sequential(*layers)
+        self.out_features = outsize
 
     def forward(self, x):
         return self.net(x)

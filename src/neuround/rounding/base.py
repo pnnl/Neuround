@@ -19,7 +19,7 @@ class RoundingNode(Node, ABC):
     is auto-extracted from each variable object.
 
     Args:
-        vars: Variable or list of variables (created by neuropminlp.variable).
+        vars: Variable or list of variables (created by neuround.variable).
         name: Module name.
     """
 

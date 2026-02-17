@@ -7,15 +7,15 @@ import torch
 from types import SimpleNamespace
 from torch import nn
 
-from neuropminlp.blocks import MLPBnDrop
+from neuround.blocks import MLPBnDrop
 from neuromancer.system import Node
-from neuropminlp.rounding.base import RoundingNode
-from neuropminlp.rounding.ste import STERounding
-from neuropminlp.rounding.threshold import (
+from neuround.rounding.base import RoundingNode
+from neuround.rounding.ste import STERounding
+from neuround.rounding.threshold import (
     DynamicThresholdRounding,
     StochasticDynamicThresholdRounding,
 )
-from neuropminlp.rounding.selection import (
+from neuround.rounding.selection import (
     AdaptiveSelectionRounding,
     StochasticAdaptiveSelectionRounding,
 )
@@ -626,10 +626,10 @@ class TestStochasticAdaptiveSelectionRounding:
 # ── TestRoundingNodeExport ───────────────────────────────────────────
 
 class TestRoundingNodeExport:
-    """Test that rounding nodes are exported from neuropminlp.rounding."""
+    """Test that rounding nodes are exported from neuround.rounding."""
 
     def test_import_from_rounding(self):
-        from neuropminlp.rounding import (
+        from neuround.rounding import (
             RoundingNode,
             STERounding,
             DynamicThresholdRounding,

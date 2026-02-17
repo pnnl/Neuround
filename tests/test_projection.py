@@ -7,7 +7,7 @@ import torch
 from torch import nn
 from types import SimpleNamespace
 
-from neuropminlp.projection.gradient import GradientProjection
+from neuround.projection.gradient import GradientProjection
 
 
 @pytest.fixture(autouse=True)
@@ -89,7 +89,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=5.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=1,
         )
         data = {"x_rel": torch.tensor([[3.0, 4.0]])}
@@ -103,7 +103,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=10.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=100,
             step_size=0.1,
         )
@@ -117,7 +117,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=3.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=200,
             step_size=0.1,
             decay=0.99,
@@ -133,7 +133,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=10.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=1000,
             tolerance=1e-6,
         )
@@ -147,7 +147,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=3.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=10,
             step_size=1.0,
             decay=0.5,
@@ -164,7 +164,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[con1, con2],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=100,
             step_size=0.1,
         )
@@ -178,7 +178,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=3.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=100,
             step_size=0.1,
         )
@@ -191,7 +191,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=10.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=1,
         )
         data = {"x_rel": torch.tensor([[1.0, 2.0]]), "params": torch.tensor([[0.5]])}
@@ -204,7 +204,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[MockConstraint(upper_bound=10.0)],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=1,
         )
         data = {"x_rel": torch.tensor([[1.3, 2.7]])}
@@ -218,7 +218,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding(input_key="y_rel", output_key="y")],
             constraints=[MockConstraint(upper_bound=3.0, input_key="y")],
-            target_key="y_rel",
+            target_keys=["y_rel"],
             num_steps=50,
             step_size=0.1,
         )
@@ -240,7 +240,7 @@ class TestGradientProjection:
                 MockConstraint(upper_bound=3.0, name="upper"),
                 MockLowerBoundConstraint(lower_bound=4.0, name="lower")
             ],
-            target_key="x_rel",
+            target_keys=["x_rel"],
             num_steps=100,
             step_size=0.1,
         )
@@ -254,7 +254,7 @@ class TestGradientProjection:
         proj = GradientProjection(
             rounding_components=[MockRounding()],
             constraints=[],
-            target_key="x_rel",
+            target_keys=["x_rel"],
         )
         data = {"x_rel": torch.tensor([[1.6]])}
         result = proj(data)
