@@ -34,8 +34,8 @@ def __getattr__(name):
 
         class Trainer(_BaseTrainer):
             """Trainer with implicit torch.compile + AMP autocast."""
-            def __init__(self, problem, *args, device="cpu", **kwargs):
-                super().__init__(fast(problem, device), *args,
+            def __init__(self, problem, *args, device="cpu", compile=True, **kwargs):
+                super().__init__(fast(problem, device, compile=compile), *args,
                                  device=device, **kwargs)
 
         return Trainer

@@ -11,7 +11,7 @@ from neuromancer.problem import Problem
 from neuround.projection.gradient import GradientProjection
 
 
-def fast(problem, device="cuda"):
+def fast(problem, device="cuda", compile=True):
     """
     Decorate a Problem with torch.compile + AMP autocast.
 
@@ -38,10 +38,11 @@ def fast(problem, device="cuda"):
     problem.forward = _amp_forward
 
     # torch.compile for graph-level fusion (graceful fallback)
-    try:
-        problem = torch.compile(problem)
-    except Exception:
-        pass
+    if compile:
+        try:
+            problem = torch.compile(problem)
+        except Exception:
+            pass
 
     return problem
 
@@ -145,7 +146,7 @@ class LearnableSolver:
 
     def train(self, loader_train, loader_val, optimizer,
               epochs=200, patience=20, warmup=20,
-              device="cpu"):
+              device="cpu", compile=True):
         """
         Train the solver with AMP autocast and optional torch.compile.
 
@@ -161,7 +162,7 @@ class LearnableSolver:
         from neuromancer.trainer import Trainer
 
         self.problem.to(device)
-        decorated = fast(self.problem, device=device)
+        decorated = fast(self.problem, device=device, compile=compile)
         trainer = Trainer(
             decorated, loader_train, loader_val,
             optimizer=optimizer, epochs=epochs,
