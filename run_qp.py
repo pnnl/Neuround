@@ -4,14 +4,12 @@
 Submit experiments for IQP
 """
 import argparse
-import itertools
 import random
-import time
 import numpy as np
-import pandas as pd
 import torch
-from torch import nn
-from tqdm import tqdm
+from torch.utils.data import DataLoader
+from neuround import DictDataset
+import experiments
 
 # random seed
 random.seed(42)
@@ -35,9 +33,10 @@ parser.add_argument("--penalty",
 parser.add_argument("--project",
                     action="store_true",
                     help="project gradient")
-parser.add_argument("--warmstart",
-                    action="store_true",
-                    help="warm start")
+parser.add_argument("--no_compile",
+                    action="store_false",
+                    dest="compile",
+                    help="disable torch.compile")
 config = parser.parse_args()
 
 # init problem
@@ -58,37 +57,33 @@ config.lr = 1e-3                        # learning rate
 
 # data sample from uniform distribution
 b_samples = torch.from_numpy(np.random.uniform(-1, 1, size=(num_data, num_ineq))).float()
-data = {"b":b_samples}
+
 # data split
-from src.utils import data_split
-data_train, data_test, data_val = data_split(data, test_size=test_size, val_size=val_size)
+from sklearn.model_selection import train_test_split
+from neuround import DictDataset
+ind = list(range(num_data))
+ind_train, ind_test = train_test_split(ind, test_size=test_size, random_state=42, shuffle=True)
+ind_train, ind_val = train_test_split(ind_train, test_size=val_size, random_state=42, shuffle=True)
+# Convert indices to tensors for efficient indexing
+itrain, itest, ival = torch.tensor(ind_train), torch.tensor(ind_test), torch.tensor(ind_val)
+data_train = DictDataset({"b": b_samples[itrain]}, name="train")
+data_test = DictDataset({"b": b_samples[itest]}, name="test")
+data_val = DictDataset({"b": b_samples[ival]}, name="dev")
 # torch dataloaders
 from torch.utils.data import DataLoader
 loader_train = DataLoader(data_train, config.batch_size, num_workers=0,
-                          collate_fn=data_train.collate_fn, shuffle=True)
+                          collate_fn=data_train.collate_fn, shuffle=True, pin_memory=True)
 loader_test  = DataLoader(data_test, config.batch_size, num_workers=0,
-                          collate_fn=data_test.collate_fn, shuffle=False)
+                          collate_fn=data_test.collate_fn, shuffle=False, pin_memory=True)
 loader_val   = DataLoader(data_val, config.batch_size, num_workers=0,
-                          collate_fn=data_val.collate_fn, shuffle=False)
+                          collate_fn=data_val.collate_fn, shuffle=False, pin_memory=True)
 
-import run
 print("Integer Quadratic")
-if config.project is True and config.warmstart is True:
-    print("Warm Starting:")
-    run.quadratic.exact(loader_test, config)
-    run.quadratic.rndCls(loader_train, loader_test, loader_val, config)
-    run.quadratic.rndThd(loader_train, loader_test, loader_val, config)
-elif config.project is True:
-    print("Feasibility projection:")
-    run.quadratic.rndCls(loader_train, loader_test, loader_val, config)
-    run.quadratic.rndThd(loader_train, loader_test, loader_val, config)
-    run.quadratic.lrnRnd(loader_train, loader_test, loader_val, config)
-    run.quadratic.rndSte(loader_train, loader_test, loader_val, config)
-else:
-    run.quadratic.exact(loader_test, config)
-    run.quadratic.relRnd(loader_test, config)
-    run.quadratic.root(loader_test, config)
-    run.quadratic.rndCls(loader_train, loader_test, loader_val, config)
-    run.quadratic.rndThd(loader_train, loader_test, loader_val, config)
-    run.quadratic.lrnRnd(loader_train, loader_test, loader_val, config)
-    run.quadratic.rndSte(loader_train, loader_test, loader_val, config)
+#if config.project is False:
+#    experiments.quadratic.run_EX(loader_test, config)
+#    experiments.quadratic.run_RR(loader_test, config)
+#    experiments.quadratic.run_N1(loader_test, config)
+experiments.quadratic.run_AS(loader_train, loader_test, loader_val, config)
+experiments.quadratic.run_DT(loader_train, loader_test, loader_val, config)
+experiments.quadratic.run_LR(loader_train, loader_test, loader_val, config)
+experiments.quadratic.run_RS(loader_train, loader_test, loader_val, config)
