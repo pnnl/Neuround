@@ -33,7 +33,7 @@ def __getattr__(name):
         from neuround.solver import fast
 
         class Trainer(_BaseTrainer):
-            """Trainer with implicit torch.compile + AMP autocast."""
+            """Trainer with implicit torch.compile."""
             def __init__(self, problem, *args, device="cpu", compile=True, **kwargs):
                 super().__init__(fast(problem, device, compile=compile), *args,
                                  device=device, **kwargs)

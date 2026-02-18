@@ -25,21 +25,13 @@ def fast(problem, device="cuda", compile=True):
     Returns:
         The (possibly compiled) problem with autocast-wrapped forward.
     """
-    use_amp = "cuda" in str(device)
-
-    # Wrap forward with autocast first (compile will trace through it)
-    _orig_forward = problem.forward
-
-    @functools.wraps(_orig_forward)
-    def _amp_forward(*args, **kwargs):
-        with torch.amp.autocast("cuda", enabled=use_amp):
-            return _orig_forward(*args, **kwargs)
-
-    problem.forward = _amp_forward
+    # Removed AMP autocast wrapper
 
     # torch.compile for graph-level fusion (graceful fallback)
     if compile:
         try:
+            import torch._dynamo
+            torch._dynamo.config.recompile_limit = 32
             problem = torch.compile(problem)
         except Exception:
             pass
@@ -148,7 +140,7 @@ class LearnableSolver:
               epochs=200, patience=20, warmup=20,
               device="cpu", compile=True):
         """
-        Train the solver with AMP autocast and optional torch.compile.
+        Train the solver with optional torch.compile.
 
         Args:
             loader_train: Training DataLoader.
