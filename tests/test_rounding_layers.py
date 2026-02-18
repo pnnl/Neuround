@@ -176,7 +176,7 @@ class TestSTERounding:
         layer = STERounding(mixed_var)
         layer.eval()
         x_rel = torch.tensor([[0.5, 1.7, 0.8, 3.2, 0.3]])
-        data = {"x_rel": x_rel.clone()}
+        data = {"x_rel": x_rel}
         result = layer(data)
         x = result["x"]
         # Continuous indices [0] should be unchanged
@@ -397,8 +397,8 @@ class TestStochasticDynamicThresholdRounding:
         p = torch.randn(2, 4)
         results = []
         for _ in range(10):
-            data = {"x_rel": torch.tensor([[1.5, 2.5, 0.5], [0.3, 1.8, 2.1]]), "p": p.clone()}
-            results.append(layer(data)["x"].clone())
+            data = {"x_rel": torch.tensor([[1.5, 2.5, 0.5], [0.3, 1.8, 2.1]]), "p": p}
+            results.append(layer(data)["x"])
         assert not all(torch.allclose(results[0], r) for r in results[1:])
 
     def test_gradient_flow(self, int_var):
@@ -585,8 +585,8 @@ class TestStochasticAdaptiveSelectionRounding:
         p = torch.randn(2, 4)
         results = []
         for _ in range(10):
-            data = {"x_rel": torch.tensor([[1.5, 2.5, 0.5], [0.3, 1.8, 2.1]]), "p": p.clone()}
-            results.append(layer(data)["x"].clone())
+            data = {"x_rel": torch.tensor([[1.5, 2.5, 0.5], [0.3, 1.8, 2.1]]), "p": p}
+            results.append(layer(data)["x"])
         assert not all(torch.allclose(results[0], r) for r in results[1:])
 
     def test_gradient_flow(self, int_var):

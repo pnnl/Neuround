@@ -80,10 +80,11 @@ class DiffGumbelBinarize(nn.Module):
 
     def forward(self, x):
         if self.training:
-            # Add Gumbel noise for stochastic sampling
-            gumbel_noise0 = self._gumbelSample(x)
-            gumbel_noise1 = self._gumbelSample(x)
-            noisy_diff = x + gumbel_noise1 - gumbel_noise0
+            # Sample Logistic(0, 1) noise directly using torch.logit
+            # This is equivalent to Gumbel(0,1) - Gumbel(0,1) but faster and more stable
+            u = torch.rand_like(x)
+            logistic_noise = torch.logit(u, eps=self.eps)
+            noisy_diff = x + logistic_noise
             # Soft relaxation via sigmoid
             soft_sample = torch.sigmoid(noisy_diff / self.temperature)
             # Hard binarization
@@ -93,11 +94,6 @@ class DiffGumbelBinarize(nn.Module):
         else:
             # Deterministic threshold in eval
             return (torch.sigmoid(x / self.temperature) > 0.5).float()
-
-    def _gumbelSample(self, x):
-        """Generate Gumbel noise based on input shape and device."""
-        u = torch.rand_like(x)
-        return -torch.log(-torch.log(u + self.eps) + self.eps)
 
 
 class GumbelThresholdBinarize(nn.Module):
@@ -121,10 +117,10 @@ class GumbelThresholdBinarize(nn.Module):
         threshold = torch.clamp(threshold, 0, 1)
         diff = x - threshold
         if self.training:
-            # Add Gumbel noise for stochastic sampling
-            gumbel_noise0 = self._gumbelSample(x)
-            gumbel_noise1 = self._gumbelSample(x)
-            noisy_diff = diff + gumbel_noise1 - gumbel_noise0
+            # Sample Logistic(0, 1) noise directly using torch.logit
+            u = torch.rand_like(x)
+            logistic_noise = torch.logit(u, eps=self.eps)
+            noisy_diff = diff + logistic_noise
             # Soft relaxation via sigmoid
             soft_sample = torch.sigmoid(noisy_diff / self.temperature)
             # Hard binarization
@@ -134,11 +130,6 @@ class GumbelThresholdBinarize(nn.Module):
         else:
             # Deterministic threshold in eval
             return (diff >= 0).float()
-
-    def _gumbelSample(self, x):
-        """Generate Gumbel noise based on input shape and device."""
-        u = torch.rand_like(x)
-        return -torch.log(-torch.log(u + self.eps) + self.eps)
 
 
 class ThresholdBinarize(nn.Module):
